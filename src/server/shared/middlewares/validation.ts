@@ -1,16 +1,20 @@
 import { RequestHandler } from "express";
 import { StatusCodes } from "http-status-codes";
-import { Schema, ValidationError } from "yup";
+import { AnyObject, Maybe, ObjectSchema, ValidationError } from "yup";
 
-type TProperty = "body" | "header" | "params" | "query"
+type TProperty = "body" | "header" | "params" | "query";
 
-type TGetSchema = <T>(schema: Schema<T>) => Schema<T>
+type TGetSchema = <T extends Maybe<AnyObject>>(schema: ObjectSchema<T>) => ObjectSchema<T>;
 
-type TAllSchemas = Record<TProperty, Schema>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type TAllSchemas = Record<TProperty, ObjectSchema<any>>;
 
-type TValidation = (schemas: Partial<TAllSchemas>) => RequestHandler;
+type TGetAllSchemas = (getSchema: TGetSchema) => Partial<TAllSchemas>;
 
-export const validation: TValidation = (schemas) => async (req, res, next) => {
+type TValidation = (getAllSchemas: TGetAllSchemas) => RequestHandler;
+
+export const validation: TValidation = (getAllSchemas) => async (req, res, next) => {
+  const schemas = getAllSchemas((schema) => schema);
 
   const errorsResult: Record<string, Record<string, string>> = {};
 
