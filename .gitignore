@@ -1,4 +1,8 @@
 /node_modules
 yarn-error.log
-.env
+
 /dist
+/coverage
+
+.env
+.sqlite
