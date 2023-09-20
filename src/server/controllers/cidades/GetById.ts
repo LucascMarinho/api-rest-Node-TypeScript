@@ -1,11 +1,11 @@
 import { Request, Response } from "express";
 import * as yup from "yup";
-import { validation } from "../../shared/middlewares";
 import { StatusCodes } from "http-status-codes";
 
-interface IParamsProps {
-  id?: number;
-}
+import { validation } from "../../shared/middlewares";
+import { CidadesProvider } from "../../database/providers/cidades";
+
+interface IParamsProps { id?: number }
 
 export const getByIdValidation = validation((getSchema) => ({
   params: getSchema<IParamsProps>(yup.object().shape({
@@ -14,16 +14,21 @@ export const getByIdValidation = validation((getSchema) => ({
 }));
 
 export const getById = async (req: Request<IParamsProps>, res: Response) => {
+  if (!req.params.id) {
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      errors: {
+        default: "O parâmetro 'id' não foi informado"
+      }
+    });
+  }
+  const result = await CidadesProvider.getById(req.params.id);
 
-  if (Number(req.params.id) === 999999) return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-    errors: {
-      default: "Registro não encontrado"
-    }
-  });
-
-  return res.status(StatusCodes.OK).json({
-    id: req.params.id,
-    name: "Crato"
-  });
-
+  if (result instanceof Error) {
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      errors: {
+        default: result.message
+      }
+    });
+  }
+  return res.status(StatusCodes.OK).json(result);
 };
