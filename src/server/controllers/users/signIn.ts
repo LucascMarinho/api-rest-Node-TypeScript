@@ -21,7 +21,8 @@ export const signIn = async (req: Request<{}, {}, IBodyProps>, res: Response) =>
   const { email, senha } = req.body;
 
   const result = await UsersProvider.getByEmail(email);
-  if (result instanceof Error || result.senha !== senha) {
+  console.log(result);
+  if (result instanceof Error || result.senha.toString() !== senha) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
       errors: {
         default: "Não foi possível validar as credenciais."

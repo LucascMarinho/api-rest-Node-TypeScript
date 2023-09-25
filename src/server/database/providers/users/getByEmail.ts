@@ -9,7 +9,6 @@ export const getByEmail = async (email: string): Promise<IUser | Error> => {
     if (result) {
       return result;
     }
-    console.log(result);
     return new Error("Erro ao atualizar o registro.");
   } catch (error) {
     console.log(error);
